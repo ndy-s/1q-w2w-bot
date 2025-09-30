@@ -1,5 +1,5 @@
 .env
-.venv/
 
 node_modules/
 auth_info/
+.idea/
