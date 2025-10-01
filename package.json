@@ -18,11 +18,13 @@
   "type": "commonjs",
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.3",
-    "axios": "^1.6.6",
+    "axios": "^1.12.2",
+    "axios-cookiejar-support": "^6.0.4",
     "baileys": "^7.0.0-rc.3",
     "dotenv": "^16.1.4",
     "node-cron": "^3.0.2",
     "puppeteer": "^24.22.3",
-    "qrcode-terminal": "^0.12.0"
+    "qrcode-terminal": "^0.12.0",
+    "tough-cookie": "^5.1.2"
   }
 }

@@ -1,4 +1,6 @@
 const axios = require("axios");
+const { wrapper } = require("axios-cookiejar-support");
+const tough = require("tough-cookie");
 const dotenv = require("dotenv");
 const fs = require("fs");
 const path = require("path");
@@ -14,13 +16,19 @@ if (!fs.existsSync(REPORTS_FOLDER)) {
     fs.mkdirSync(REPORTS_FOLDER, { recursive: true });
 }
 
-const SESSION = axios.create({
-    withCredentials: true,
-});
+const jar = new tough.CookieJar();
+const SESSION = wrapper(
+    axios.create({
+        baseURL: BASE_URL,
+        jar,
+        withCredentials: true,
+    })
+);
 
 async function login() {
-    const url = `${BASE_URL}/accounts/login`;
+    const url = `/account/login`;
     const getLoginResp = await SESSION.get(url);
+
     if (getLoginResp.status !== 200) {
         throw new Error(`❌ Login page request failed. Response: ${getLoginResp.data}`);
     }
@@ -37,11 +45,16 @@ async function login() {
     });
 
     const headers = { "Content-Type": "application/x-www-form-urlencoded" };
-    return SESSION.post(url, payload, { headers });
+
+    return SESSION.post(url, payload.toString(), { 
+        headers,
+        maxRedirects: 0,
+        validateStatus: (s) => s >= 200 && s < 400,
+    });
 }
 
 async function getWhatapData() {
-    const url = `${BASE_URL}/yard/api/flush`;
+    const url = `/yard/api/flush`;
     const headers = { "Content-Type": "application/json" };
 
     const WIB_OFFSET = 7 * 60;
@@ -72,7 +85,7 @@ async function getWhatapData() {
             order: "count",
             type: "error",
             textLength: 0,
-            olds: [],
+            oids: [],
         },
     };
 
