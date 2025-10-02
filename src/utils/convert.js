@@ -72,8 +72,8 @@ async function generateReportImage() {
                 </thead>
                 <tbody>
                     ${records.map(row =>
-            '<tr>' + Object.values(row).map(c => `<td>${c}</td>`).join('') + '</tr>'
-        ).join('')}
+                        '<tr>' + Object.values(row).map(c => `<td>${c}</td>`).join('') + '</tr>'
+                    ).join('')}
                 </tbody>
             </table>
         </body>

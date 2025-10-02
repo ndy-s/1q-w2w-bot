@@ -82,6 +82,8 @@ def export_csv(data):
         "com.tifscore.biz.exception.OneQPinException",
         "com.tifscore.biz.exception.OneQRequiredException",
         "com.tifscore.core.exception.OneQOnCoreException",
+        "com.tifscore.core.exception.OneQPinException",
+        "com.tifscore.core.exception.OneQRequiredException",
         "com.tifscore.exception.OneQAccountException",
         "com.tifscore.exception.OneQCardException",
         "com.tifscore.exception.OneQChannelException",
