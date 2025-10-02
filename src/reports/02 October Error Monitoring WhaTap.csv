@@ -1,3 +1,0 @@
-class,service,msg,count
-com.tifscore.custom.DummyException,DummyService,Something went wrong,10
-com.tifscore.custom.AnotherDummyException,OtherService,Other error,1
