@@ -60,7 +60,7 @@ async function startBot() {
 
         // Schedule report at 08:01 Asia/Jakarta
         // cron.schedule('0 31 8 * * *', async () => {
-        cron.schedule('*/5 * * * * *', async () => {
+        cron.schedule('*/30 * * * * *', async () => {
             if (!isConnected) {
                 console.log('⏳ WhatsApp not connected yet. Skipping cron task.');
                 return;

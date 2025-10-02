@@ -1,11 +1,25 @@
 const fs = require('fs');
 const path = require('path');
+const parse = require('csv-parse/sync').parse;
 const puppeteer = require('puppeteer');
+const chromeLauncher = require('chrome-launcher');
 const {generateDummyCSV} = require("./runner");
 
 const REPORTS_FOLDER = path.join(__dirname, "../reports");
 if (!fs.existsSync(REPORTS_FOLDER)) {
     fs.mkdirSync(REPORTS_FOLDER, { recursive: true });
+}
+
+async function getChromePath() {
+    try {
+        const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
+        const path = chrome?.process?.spawnfile || chrome?.executablePath;
+        await chrome.kill();
+        return path;
+    } catch (err) {
+        console.warn("⚠️ Could not detect system Chrome, using Puppeteer's Chromium instead");
+        return puppeteer.executablePath();
+    }
 }
 
 async function generateReportImage() {
@@ -20,32 +34,64 @@ async function generateReportImage() {
     const csvContent = fs.readFileSync(fullPath, 'utf-8');
     console.log(`✅ CSV content length: ${csvContent.length} chars`);
 
-    const lines = csvContent.split('\n');
-    console.log(`📊 Total lines in CSV: ${lines.length}`);
-
-    const tableRows = lines.map(line => {
-        const cols = line.split(',');
-        return `<tr>${cols.map(c => `<td>${c}</td>`).join('')}</tr>`;
-    }).join('');
+    const records = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+    });
 
     const html = `
-        <html>
-            <body>
-                <table border="1" style="border-collapse: collapse; font-family: sans-serif;">
-                    ${tableRows}
-                </table>
-            </body>
-        </html>
+    <html>
+        <head>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    font-family: sans-serif;
+                    width: 100%;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                }
+                th {
+                    font-weight: bold;
+                    text-align: center;
+                    text-transform: uppercase;
+                    background-color: #f0f0f0;
+                }
+                td {
+                    text-align: left;
+                }
+            </style>
+        </head>
+        <body>
+            <table>
+                <thead>
+                    <tr>
+                        ${Object.keys(records[0] || {}).map(c => `<th>${c}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${records.map(row =>
+            '<tr>' + Object.values(row).map(c => `<td>${c}</td>`).join('') + '</tr>'
+        ).join('')}
+                </tbody>
+            </table>
+        </body>
+    </html>
     `;
 
     const tmpHtmlPath = path.join(REPORTS_FOLDER, `tmp-${Date.now()}.html`);
     console.log(`💾 Writing temporary HTML to: ${tmpHtmlPath}`);
     fs.writeFileSync(tmpHtmlPath, html);
 
+    const executablePath = await getChromePath();
+    console.log(`📌 Puppeteer will launch with: ${executablePath}`);
+
     console.log('🌐 Launching Puppeteer browser...');
     const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath,
     });
 
     console.log('📄 Opening new page...');
