@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
-const { generateReport } = require('./report');
+const {generateDummyCSV} = require("./runner");
 
 const REPORTS_FOLDER = path.join(__dirname, "../reports");
 if (!fs.existsSync(REPORTS_FOLDER)) {
@@ -12,7 +12,8 @@ async function generateReportImage() {
     console.log('🟢 Starting generateReportImage...');
 
     console.log('📄 Generating CSV report...');
-    const { fullPath, filename } = await generateReport();
+    const { fullPath, filename } = await generateDummyCSV();
+
     console.log(`✅ CSV report generated: ${fullPath}`);
 
     console.log('📖 Reading CSV content...');
