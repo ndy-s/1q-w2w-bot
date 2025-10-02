@@ -3,7 +3,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const venvPath = path.join(__dirname, '../../.venv');
-const pyScript = path.join(__dirname, '../../py_scripts/dummy.py');
+const pyScript = path.join(__dirname, '../../py_scripts/generate.py');
 const requirements = path.join(__dirname, '../../py_scripts/requirements.txt');
 
 const isWin = process.platform === 'win32';
