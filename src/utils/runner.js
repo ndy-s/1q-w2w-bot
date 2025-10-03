@@ -3,8 +3,8 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const venvPath = path.join(__dirname, '../../.venv');
-const pyScript = path.join(__dirname, '../../py_scripts/generate.py');
-const requirements = path.join(__dirname, '../../py_scripts/requirements.txt');
+const pyScript = path.join(__dirname, '../scripts/generate.py');
+const requirements = path.join(__dirname, '../scripts/requirements.txt');
 
 const isWin = process.platform === 'win32';
 const pyCmd = isWin ? 'python' : 'python3';
@@ -34,7 +34,7 @@ async function installRequirements() {
     }
 }
 
-async function generateDummyCSV() {
+async function generateCSV() {
     await ensureVenv();
     await installRequirements();
 
@@ -58,7 +58,7 @@ async function generateDummyCSV() {
                 if (!fs.existsSync(fullPath)) {
                     return reject(new Error(`CSV file not found: ${fullPath}`));
                 }
-                console.log(`✅ Dummy CSV generated at: ${fullPath}`);
+                console.log(`✅ CSV generated at: ${fullPath}`);
                 resolve({ fullPath, filename });
             } catch (err) {
                 reject(new Error(`Failed to parse Python output: ${err.message}\nOutput:\n${output}`));
@@ -67,5 +67,5 @@ async function generateDummyCSV() {
     });
 }
 
-module.exports = { generateDummyCSV };
+module.exports = { generateCSV };
 

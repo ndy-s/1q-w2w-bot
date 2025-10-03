@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment-timezone');
 const parse = require('csv-parse/sync').parse;
 const puppeteer = require('puppeteer');
 const chromeLauncher = require('chrome-launcher');
-const {generateDummyCSV} = require("./runner");
+const { generateCSV } = require("./runner");
 
 const REPORTS_FOLDER = path.join(__dirname, "../reports");
 if (!fs.existsSync(REPORTS_FOLDER)) {
@@ -26,7 +27,7 @@ async function generateReportImage() {
     console.log('🟢 Starting generateReportImage...');
 
     console.log('📄 Generating CSV report...');
-    const { fullPath, filename } = await generateDummyCSV();
+    const { fullPath, filename } = await generateCSV();
 
     console.log(`✅ CSV report generated: ${fullPath}`);
 
@@ -39,45 +40,55 @@ async function generateReportImage() {
         skip_empty_lines: true,
     });
 
+    const tz = 'Asia/Jakarta';
+    const startTime = moment().tz(tz).subtract(1, 'day').hour(8).minute(31).second(0);
+    const endTime = moment().tz(tz).hour(8).minute(30).second(0);
+    const title = `Report from ${startTime.format('YYYY-MM-DD HH:mm')} to ${endTime.format('YYYY-MM-DD HH:mm')}`;
+
     const html = `
-    <html>
-        <head>
-            <style>
-                table {
-                    border-collapse: collapse;
-                    font-family: sans-serif;
-                    width: 100%;
-                }
-                th, td {
-                    border: 1px solid #000;
-                    padding: 8px;
-                }
-                th {
-                    font-weight: bold;
-                    text-align: center;
-                    text-transform: uppercase;
-                    background-color: #f0f0f0;
-                }
-                td {
-                    text-align: left;
-                }
-            </style>
-        </head>
-        <body>
-            <table>
-                <thead>
-                    <tr>
-                        ${Object.keys(records[0] || {}).map(c => `<th>${c}</th>`).join('')}
-                    </tr>
-                </thead>
-                <tbody>
-                    ${records.map(row =>
-                        '<tr>' + Object.values(row).map(c => `<td>${c}</td>`).join('') + '</tr>'
-                    ).join('')}
-                </tbody>
-            </table>
-        </body>
-    </html>
+        <html>
+            <head>
+                <style>
+                    table {
+                        border-collapse: collapse;
+                        font-family: sans-serif;
+                        width: 100%;
+                    }
+                    th, td {
+                        border: 1px solid #000;
+                        padding: 8px;
+                    }
+                    th {
+                        font-weight: bold;
+                        text-align: center;
+                        text-transform: uppercase;
+                        background-color: #f0f0f0;
+                    }
+                    td {
+                        text-align: left;
+                    }
+                    h2 {
+                        text-align: center;
+                        font-family: sans-serif;
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>${title}</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            ${Object.keys(records[0] || {}).map(c => `<th>${c}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${records.map(row =>
+                            '<tr>' + Object.values(row).map(c => `<td>${c}</td>`).join('') + '</tr>'
+                        ).join('')}
+                    </tbody>
+                </table>
+            </body>
+        </html>
     `;
 
     const tmpHtmlPath = path.join(REPORTS_FOLDER, `tmp-${Date.now()}.html`);
