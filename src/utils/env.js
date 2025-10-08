@@ -24,8 +24,8 @@ async function updateAppPassword(newPassword, userJid, AUTHORIZED_USERS) {
             }
             fs.writeFileSync(envPath, envContent, 'utf-8');
 
-            console.log(`🎉 APP_PASSWORD updated successfully by ${userJid}`);
-            resolve('🎉 APP_PASSWORD has been updated successfully.');
+            console.log(`✅ APP_PASSWORD updated successfully by ${userJid}`);
+            resolve('Password has been updated successfully.');
         } catch (err) {
             console.error('❌ Failed to update APP_PASSWORD:', err);
             resolve('❌ Failed to update APP_PASSWORD. Check server logs.');
