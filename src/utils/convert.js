@@ -50,7 +50,8 @@ async function generateReportImage(startDate = null, endDate = null) {
         endTime = moment.tz(tz).startOf('day').hour(8).minute(30).second(0);
         startTime = endTime.clone().subtract(1, 'day').add(1, 'minute');
     }
-    const title = `Report from ${startTime.format('YYYY-MM-DD HH:mm')} to ${endTime.format('YYYY-MM-DD HH:mm')}`;
+
+    const title = `Report from ${startTime.format('DD MMM YYYY HH:mm')} to ${endTime.format('DD MMM YYYY HH:mm')}`;
 
     const html = `
         <html>

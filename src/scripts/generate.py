@@ -127,9 +127,11 @@ def export_csv(data, start_date=None, end_date=None):
 
     # Generate a filename based on the date range
     if start_date and end_date:
-        filename = f"{start_date} to {end_date} Error Monitoring WhaTap.csv"
+        start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%d %b %Y")
+        end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%d %b %Y")
+        filename = f"{start_str} to {end_str} Error Monitoring WhaTap.csv"
     else:
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        today_str = datetime.now().strftime("%d %b %Y")
         filename = f"{today_str} Error Monitoring WhaTap.csv"
 
     full_path = os.path.join(reports_dir, filename)
