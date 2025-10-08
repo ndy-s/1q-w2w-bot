@@ -45,7 +45,7 @@ async function generateReportImage(startDate = null, endDate = null) {
 
     if (startDate && endDate) {
         startTime = moment.tz(startDate, tz).startOf('day').hour(8).minute(31).second(0);
-        endTime = moment.tz(endDate, tz).startOf('day').hour(8).minute(30).second(0).add(1, 'day');
+        endTime = moment.tz(endDate, tz).startOf('day').hour(8).minute(30).second(0);
     } else {
         endTime = moment.tz(tz).startOf('day').hour(8).minute(30).second(0);
         startTime = endTime.clone().subtract(1, 'day').add(1, 'minute');

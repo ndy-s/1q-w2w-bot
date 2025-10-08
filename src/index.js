@@ -79,10 +79,19 @@ async function startBot() {
             // !help command
             if (cleanText.toLowerCase() === '!help') {
                 await sock.sendMessage(jid, {
-                    text: `📋 *Monitoring Bot Commands*\n\n` +
-                        `1️⃣ @Bot monitoring → Generate daily report (yesterday 08:31 → today 08:30)\n` +
-                        `2️⃣ @Bot monitoring YYYY-MM-DD YYYY-MM-DD → Generate report for specific range\n\n` +
-                        `⚠️ Dates must be in format YYYY-MM-DD. Start date must be ≤ end date.`
+                    text:
+                        `Monitoring Bot - Available Commands
+
+1. @Bot monitoring  
+   Generate the daily report (covers yesterday 08:31 to today 08:30)
+
+2. @Bot monitoring YYYY-MM-DD YYYY-MM-DD  
+   Generate a report from the first date (start) 08:31 to the second date (end) 08:30.
+
+Notes:
+- Dates must follow the format YYYY-MM-DD
+- The start date must be earlier than or equal to the end date
+- The system automatically generates the daily report every day at 08:31 AM`
                 });
                 continue;
             }
@@ -116,7 +125,9 @@ async function startBot() {
             }
 
             await sock.sendMessage(jid, {
-                text: `📊 Generating ${hasCustomRange ? `report for ${startDate} → ${endDate}` : 'daily report'}...`,
+                text: `Alright, preparing ${hasCustomRange
+                    ? `your report from ${startDate} to ${endDate}`
+                    : 'today’s daily report'}. This may take a few seconds.`
             });
 
             try {
