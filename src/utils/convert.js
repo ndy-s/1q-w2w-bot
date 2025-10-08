@@ -41,8 +41,15 @@ async function generateReportImage(startDate = null, endDate = null) {
     });
 
     const tz = 'Asia/Jakarta';
-    const startTime = moment().tz(tz).subtract(1, 'day').hour(8).minute(31).second(0);
-    const endTime = moment().tz(tz).hour(8).minute(30).second(0);
+    let startTime, endTime;
+
+    if (startDate && endDate) {
+        startTime = moment.tz(startDate, tz).startOf('day').hour(8).minute(31).second(0);
+        endTime = moment.tz(endDate, tz).startOf('day').hour(8).minute(30).second(0).add(1, 'day');
+    } else {
+        endTime = moment.tz(tz).startOf('day').hour(8).minute(30).second(0);
+        startTime = endTime.clone().subtract(1, 'day').add(1, 'minute');
+    }
     const title = `Report from ${startTime.format('YYYY-MM-DD HH:mm')} to ${endTime.format('YYYY-MM-DD HH:mm')}`;
 
     const html = `
