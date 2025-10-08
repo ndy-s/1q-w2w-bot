@@ -138,6 +138,11 @@ async function startBot() {
                     endDate = endMoment.format('YYYY-MM-DD');
                 }
 
+                if ((startDate && !endDate) || (!startDate && endDate)) {
+                    await sock.sendMessage(jid, { text: 'Please provide both start and end dates for a custom range.' });
+                    continue;
+                }
+
                 if (startDate && endDate && moment(startDate).isAfter(moment(endDate))) {
                     await sock.sendMessage(jid, { text: 'Start date cannot be after end date.' });
                     continue;
@@ -159,14 +164,14 @@ async function startBot() {
             });
 
             try {
-                const imagePath = await generateReportImage(startDate, endDate);
-                const caption = path.basename(imagePath, path.extname(imagePath));
-
-                await sock.sendMessage(jid, {
-                    image: fs.readFileSync(imagePath),
-                    caption,
-                    mimetype: 'image/png',
-                });
+                // const imagePath = await generateReportImage(startDate, endDate);
+                // const caption = path.basename(imagePath, path.extname(imagePath));
+                //
+                // await sock.sendMessage(jid, {
+                //     image: fs.readFileSync(imagePath),
+                //     caption,
+                //     mimetype: 'image/png',
+                // });
 
                 console.log(`✅ Report sent (${hasCustomRange ? `${startDate}→${endDate}` : 'default range'})`);
             } catch (err) {
