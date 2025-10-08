@@ -79,7 +79,7 @@ def get_whatap_data(start_date=None, end_date=None):
     return resp.json()
 
 
-def export_csv(data):
+def export_csv(data, start_date=None, end_date=None):
     records = data.get("records", [])
 
     excluded_classes = [
@@ -155,7 +155,7 @@ def process():
             raise Exception(f"Login failed: {login_resp.status_code}")
 
         whatap_resp = get_whatap_data(start_date, end_date)
-        export_csv(whatap_resp)
+        export_csv(whatap_resp, start_date, end_date)
         sys.exit(0)
 
     except Exception as e:
