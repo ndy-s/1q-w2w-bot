@@ -98,7 +98,8 @@ async function startBot() {
             if (cleanText.toLowerCase() === '!help') {
                 await sock.sendMessage(jid, {
                     text:
-                        `*Monitoring Bot - Available Commands*
+                        `*Bot Available Commands*
+                        
 1. @Bot monitoring  
 \`Generate the daily report (covers yesterday 08:31 to today 08:30).\`
 
