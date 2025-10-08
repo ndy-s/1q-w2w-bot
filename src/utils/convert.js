@@ -23,11 +23,11 @@ async function getChromePath() {
     }
 }
 
-async function generateReportImage() {
+async function generateReportImage(startDate = null, endDate = null) {
     console.log('🟢 Starting generateReportImage...');
 
     console.log('📄 Generating CSV report...');
-    const { fullPath, filename } = await generateCSV();
+    const { fullPath, filename } = await generateCSV(startDate, endDate);
 
     console.log(`✅ CSV report generated: ${fullPath}`);
 

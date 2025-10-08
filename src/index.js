@@ -3,8 +3,10 @@ const qrcode = require('qrcode-terminal');
 const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
+const moment = require('moment-timezone');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const { generateReportImage } = require("./utils/convert");
+const { getNumber } = require("./utils/messaging");
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -43,14 +45,95 @@ async function startBot() {
     sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('messages.upsert', async (m) => {
+        const messages = m.messages || [];
+
         if (!groupJid) {
-            const messages = m.messages || [];
             messages.forEach(msg => {
                 const jid = msg.key.remoteJid;
                 if (jid?.endsWith('@g.us')) {
                     console.log('📌 Group JID:', jid, '| From message:', msg.message?.conversation || msg.message?.extendedTextMessage?.text);
                 }
             });
+        }
+
+        for (const msg of messages) {
+            if (!msg.message) continue;
+            const jid = msg.key.remoteJid;
+            if (jid !== groupJid) continue;
+
+            const text =
+                msg.message.conversation ||
+                msg.message.extendedTextMessage?.text ||
+                "";
+
+            if (!text) continue;
+
+            const botJid = getNumber(sock.user.lid || sock.user.id);
+            const mentions = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+            const isTagged = mentions.includes(botJid);
+
+            if (!isTagged) continue;
+
+            const cleanText = text.replace(/@\d+/g, "").trim();
+
+            // !help command
+            if (cleanText.toLowerCase() === '!help') {
+                await sock.sendMessage(jid, {
+                    text: `📋 *Monitoring Bot Commands*\n\n` +
+                        `1️⃣ @Bot monitoring → Generate daily report (yesterday 08:31 → today 08:30)\n` +
+                        `2️⃣ @Bot monitoring YYYY-MM-DD YYYY-MM-DD → Generate report for specific range\n\n` +
+                        `⚠️ Dates must be in format YYYY-MM-DD. Start date must be ≤ end date.`
+                });
+                continue;
+            }
+
+            // Match monitoring command with optional dates
+            const match = cleanText.match(/^monitoring(?:\s+(\d{4}-\d{2}-\d{2}))?(?:\s+(\d{4}-\d{2}-\d{2}))?$/i);
+            if (!match) continue;
+
+            let [ , startDate, endDate ] = match;
+
+            // Validate dates
+            let hasCustomRange = false;
+            if (startDate && endDate) {
+                const startMoment = moment(startDate, 'YYYY-MM-DD', true);
+                const endMoment = moment(endDate, 'YYYY-MM-DD', true);
+
+                if (!startMoment.isValid() || !endMoment.isValid()) {
+                    await sock.sendMessage(jid, { text: '❌ Invalid date format. Use YYYY-MM-DD.' });
+                    continue;
+                }
+
+                if (startMoment.isAfter(endMoment)) {
+                    await sock.sendMessage(jid, { text: '❌ Start date cannot be after end date.' });
+                    continue;
+                }
+
+                hasCustomRange = true;
+            } else if (startDate && !endDate) {
+                startDate = null;
+                endDate = null;
+            }
+
+            await sock.sendMessage(jid, {
+                text: `📊 Generating ${hasCustomRange ? `report for ${startDate} → ${endDate}` : 'daily report'}...`,
+            });
+
+            try {
+                const imagePath = await generateReportImage(startDate, endDate);
+                const caption = path.basename(imagePath, path.extname(imagePath));
+
+                await sock.sendMessage(jid, {
+                    image: fs.readFileSync(imagePath),
+                    caption,
+                    mimetype: 'image/png',
+                });
+
+                console.log(`✅ Report sent (${hasCustomRange ? `${startDate}→${endDate}` : 'default range'})`);
+            } catch (err) {
+                console.error('❌ Failed to generate/send report:', err);
+                await sock.sendMessage(jid, { text: '❌ Failed to generate report. Check server logs.' });
+            }
         }
     });
 

@@ -34,12 +34,17 @@ async function installRequirements() {
     }
 }
 
-async function generateCSV() {
+async function generateCSV(startDate = null, endDate = null) {
     await ensureVenv();
     await installRequirements();
 
     return new Promise((resolve, reject) => {
-        const py = spawn(pyExec, [pyScript]);
+        const args = [pyScript];
+        if (startDate && endDate) {
+            args.push(startDate, endDate);
+        }
+
+        const py = spawn(pyExec, args);
 
         let output = '';
         let error = '';

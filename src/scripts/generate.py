@@ -39,16 +39,21 @@ def login():
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     return SESSION.post(url, headers=headers, data=payload)
 
-def get_whatap_data():
+def get_whatap_data(start_date=None, end_date=None):
     url = f"{BASE_URL}/yard/api/flush"
     headers = {"Content-Type": "application/json"}
 
     WIB = timezone(timedelta(hours=7))  # UTC+7
-    yesterday_0831 = datetime.now(WIB).replace(hour=8, minute=31, second=0, microsecond=0) - timedelta(days=1)
-    today_0830 = datetime.now(WIB).replace(hour=8, minute=30, second=0, microsecond=0)
 
-    stime = int(yesterday_0831.timestamp() * 1000)
-    etime = int(today_0830.timestamp() * 1000)
+    if start_date and end_date:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(hour=8, minute=31, second=0, microsecond=0, tzinfo=WIB)
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d").replace(hour=8, minute=30, second=0, microsecond=0, tzinfo=WIB)
+    else:
+        start_dt = datetime.now(WIB).replace(hour=8, minute=31, second=0, microsecond=0) - timedelta(days=1)
+        end_dt = datetime.now(WIB).replace(hour=8, minute=30, second=0, microsecond=0)
+
+    stime = int(start_dt.timestamp() * 1000)
+    etime = int(end_dt.timestamp() * 1000)
 
     data = {
         "type": "stat",
@@ -81,9 +86,20 @@ def export_csv(data):
         "com.tifscore.biz.exception.OneQLoanException",
         "com.tifscore.biz.exception.OneQPinException",
         "com.tifscore.biz.exception.OneQRequiredException",
+        "com.tifscore.core.exception.OneQApiException",
+        "com.tifscore.core.exception.OneQApprovalException",
+        "com.tifscore.core.exception.OneQBizException",
+        "com.tifscore.core.exception.OneQDBException",
+        "com.tifscore.core.exception.OneQRsltException",
+        "com.tifscore.core.exception.OneQLinkTranException",
+        "com.tifscore.core.exception.OneQNormalRsltException",
         "com.tifscore.core.exception.OneQOnCoreException",
+        "com.tifscore.core.exception.OneQOutBoundException",
+        "com.tifscore.core.exception.OneQParamException",
         "com.tifscore.core.exception.OneQPinException",
         "com.tifscore.core.exception.OneQRequiredException",
+        "com.tifscore.core.exception.OneQSimulationException",
+        "com.tifscore.core.exception.OneQSystemException",
         "com.tifscore.exception.OneQAccountException",
         "com.tifscore.exception.OneQCardException",
         "com.tifscore.exception.OneQChannelException",
@@ -109,9 +125,13 @@ def export_csv(data):
     reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src', 'reports')
     os.makedirs(reports_dir, exist_ok=True)
 
-    # Save CSV in the current project folder
-    today_str = datetime.now().strftime("%d %B")
-    filename = f"{today_str} Error Monitoring WhaTap.csv"
+    # Generate a filename based on the date range
+    if start_date and end_date:
+        filename = f"{start_date}_to_{end_date}_Error_Monitoring_WhaTap.csv"
+    else:
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        filename = f"{today_str}_Error_Monitoring_WhaTap.csv"
+
     full_path = os.path.join(reports_dir, filename)
 
     with open(full_path, mode="w", newline="", encoding="utf-8") as file:
@@ -127,11 +147,14 @@ def process():
         if not BASE_URL or not EMAIL or not PASSWORD:
             raise Exception("Missing BASE_URL, APP_EMAIL, or APP_PASSWORD in .env")
 
+        start_date = sys.argv[1] if len(sys.argv) > 1 else None
+        end_date = sys.argv[2] if len(sys.argv) > 2 else None
+
         login_resp = login()
         if login_resp.status_code not in [200, 301]:
             raise Exception(f"Login failed: {login_resp.status_code}")
 
-        whatap_resp = get_whatap_data()
+        whatap_resp = get_whatap_data(start_date, end_date)
         export_csv(whatap_resp)
         sys.exit(0)
 
