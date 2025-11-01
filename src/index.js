@@ -164,14 +164,14 @@ async function startBot() {
             });
 
             try {
-                // const imagePath = await generateReportImage(startDate, endDate);
-                // const caption = path.basename(imagePath, path.extname(imagePath));
-                //
-                // await sock.sendMessage(jid, {
-                //     image: fs.readFileSync(imagePath),
-                //     caption,
-                //     mimetype: 'image/png',
-                // });
+                const imagePath = await generateReportImage(startDate, endDate);
+                const caption = path.basename(imagePath, path.extname(imagePath));
+
+                await sock.sendMessage(jid, {
+                    image: fs.readFileSync(imagePath),
+                    caption,
+                    mimetype: 'image/png',
+                });
 
                 console.log(`✅ Report sent (${hasCustomRange ? `${startDate}→${endDate}` : 'default range'})`);
             } catch (err) {
