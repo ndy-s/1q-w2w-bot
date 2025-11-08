@@ -10,7 +10,7 @@ I named this project 1Q W2W Bot because our team is called 1Q, and the bot's mai
 ## Features
 The bot automatically posts the daily WhaTap report to the WhatsApp group we set in `.env`. It only responds inside whitelisted groups, which we also define in `.env`. That way, it ignores unrelated chats or test groups.
 
-There's a little access control too. Only authorized users, also listed in `.env`, can run sensitive commands like updating the WhaTap login password. Instead of opening the server and editing `.env` manually, they can just send a WhatsApp command like `@Bot !setpassword newpassword`, and the bot updates it automatically.
+There's a little access control too. Only authorized users listed in `.env` can run sensitive commands like updating the WhaTap login password. Instead of opening the server and editing `.env` manually, they can just send a WhatsApp command like `@Bot !setpassword newpassword`, and the bot updates it automatically.
 
 Everything else is completely scheduled. I run it on a cron job set to 08:31 AM (Asia/Jakarta). The bot handles reconnections, retries, and report generation all by itself, so no one has to babysit it.
 
