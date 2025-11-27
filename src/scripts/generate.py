@@ -164,7 +164,41 @@ def process():
         print(f"❌ Error: {e}", file=sys.stderr)
         sys.exit(1)
 
+def export_csv_dummy(start_date=None, end_date=None):
+    records = [
+        {"class": "com.example.ExceptionA", "service": "ServiceA", "msg": "Error A occurred", "count": 5},
+        {"class": "com.example.ExceptionB", "service": "ServiceB", "msg": "Error B occurred", "count": 3},
+        {"class": "com.example.ExceptionC", "service": "ServiceC", "msg": "Error C occurred", "count": 10},
+    ]
+
+    reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src', 'reports')
+    os.makedirs(reports_dir, exist_ok=True)
+
+    if start_date and end_date:
+        start_str = datetime.strptime(start_date, "%Y-%m-%d").strftime("%d %b %Y")
+        end_str = datetime.strptime(end_date, "%Y-%m-%d").strftime("%d %b %Y")
+        filename = f"{start_str} to {end_str} Dummy Error Monitoring.csv"
+    else:
+        today_str = datetime.now().strftime("%d %b %Y")
+        filename = f"{today_str} Dummy Error Monitoring.csv"
+
+    full_path = os.path.join(reports_dir, filename)
+
+    with open(full_path, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=["class", "service", "msg", "count"])
+        writer.writeheader()
+        writer.writerows(records)
+
+    print(f"✅ Dummy CSV exported to: {full_path}", file=sys.stderr)
+    print(json.dumps({"fullPath": full_path, "filename": filename}))
+
+def process_dummy():
+    start_date = sys.argv[1] if len(sys.argv) > 1 else None
+    end_date = sys.argv[2] if len(sys.argv) > 2 else None
+    export_csv_dummy(start_date, end_date)
+
 if __name__ == "__main__":
-    process()
+    # process()
+    process_dummy()
 
 

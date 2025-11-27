@@ -1,0 +1,4 @@
+class,service,msg,count
+com.example.ExceptionA,ServiceA,Error A occurred,5
+com.example.ExceptionB,ServiceB,Error B occurred,3
+com.example.ExceptionC,ServiceC,Error C occurred,10
