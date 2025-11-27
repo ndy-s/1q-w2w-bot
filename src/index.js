@@ -164,7 +164,7 @@ async function startBot() {
             });
 
             try {
-                const imagePath = await generateReportImage(startDate, endDate);
+                const { imagePath, fullPath } = await generateReportImage(startDate, endDate);
                 const caption = path.basename(imagePath, path.extname(imagePath));
 
                 await sock.sendMessage(jid, {
@@ -174,6 +174,18 @@ async function startBot() {
                 });
 
                 console.log(`✅ Report sent (${hasCustomRange ? `${startDate}→${endDate}` : 'default range'})`);
+
+                if (fullPath && fs.existsSync(fullPath)) {
+                    await sock.sendMessage(jid, {
+                        document: fs.readFileSync(fullPath),
+                        fileName: path.basename(fullPath),
+                        mimetype: 'text/csv',
+                    });
+
+                    console.log(`✅ CSV file sent: ${path.basename(fullPath)}`);
+                } else {
+                    console.log('⚠️ CSV file not found or not provided');
+                }
             } catch (err) {
                 console.error('❌ Failed to generate/send report:', err);
                 await sock.sendMessage(jid, { text: '❌ Failed to generate report. Check server logs.' });
@@ -195,7 +207,7 @@ async function startBot() {
             console.log('📊 Running daily WhaTap report...');
 
             try {
-                const imagePath = await generateReportImage();
+                const { imagePath, fullPath } = await generateReportImage();
 
                 if (!fs.existsSync(imagePath)) {
                     console.error('❌ Report image not found:', imagePath);
@@ -205,6 +217,7 @@ async function startBot() {
                 const caption = path.basename(imagePath, path.extname(imagePath));
 
                 console.log(`Sending report image to group ${GROUP_JID} with caption: "${caption}"`);
+
                 await sock.sendMessage(GROUP_JID, {
                     image: fs.readFileSync(imagePath),
                     caption,
@@ -212,6 +225,18 @@ async function startBot() {
                 });
 
                 console.log('✅ Daily report sent to WhatsApp group!');
+
+                if (fullPath && fs.existsSync(fullPath)) {
+                    await sock.sendMessage(GROUP_JID, {
+                        document: fs.readFileSync(fullPath),
+                        fileName: path.basename(fullPath),
+                        mimetype: 'text/csv',
+                    });
+
+                    console.log(`✅ CSV file sent: ${path.basename(fullPath)}`);
+                } else {
+                    console.log('⚠️ CSV file not found or not provided');
+                }
             } catch (err) {
                 console.error('❌ Failed to generate/send report:', err);
             }

@@ -122,7 +122,7 @@ def export_csv(data, start_date=None, end_date=None):
     ]
 
     # Ensure reports folder exists
-    reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src', 'reports')
+    reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'reports')
     os.makedirs(reports_dir, exist_ok=True)
 
     # Generate a filename based on the date range
@@ -171,7 +171,7 @@ def export_csv_dummy(start_date=None, end_date=None):
         {"class": "com.example.ExceptionC", "service": "ServiceC", "msg": "Error C occurred", "count": 10},
     ]
 
-    reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'src', 'reports')
+    reports_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'reports')
     os.makedirs(reports_dir, exist_ok=True)
 
     if start_date and end_date:
