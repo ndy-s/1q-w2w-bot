@@ -3,7 +3,7 @@ I built this little automation tool to help our dev team stay updated without ha
 
 Every day, we watch our banking application running in production using [WhaTap](https://www.whatap.io/) for error tracking. Normally, someone has to log in, click around, apply filters, and export the errors to Excel. It is repetitive, mundane, and honestly a bit boring. Plus, doing it manually can be prone to mistakes. I thought, why not automate this?
 
-So I built this bot. It connects to WhatsApp and sends a daily summary of errors straight to our group chat automatically every morning. The bot pulls the data using a simple Python script, turns it into a CSV report, and then converts that into a nicely formatted image using [Puppeteer](https://pptr.dev/). Finally, it sends the image through [Baileys](https://github.com/WhiskeySockets/Baileys), the WhatsApp Web API.
+So I built this bot. It connects to WhatsApp and sends a daily summary of errors straight to our group chat automatically every morning. The bot pulls the data using a simple Python script, turns it into a CSV report, and then converts that into a nicely formatted image using [node-canvas](https://www.npmjs.com/package/canvas). Finally, it sends the image through [Baileys](https://github.com/WhiskeySockets/Baileys), the WhatsApp Web API.
 
 I named this project 1Q W2W Bot because our team is called 1Q, and the bot's main purpose is to send daily WhaTap reports to WhatsApp. W2W is just a shorthand for "WhaTap to WhatsApp," which felt simple and memorable enough for an internal tool.
 
